@@ -6,11 +6,11 @@ using TechTalk.SpecFlow.Assist;
 namespace JupiterToysSpecFlowProject.StepDefinitions
 {
     [Binding]
-    public class BaseStepDefinitions
+    public class NavigationStepDefinitions
     {
         CommonObjects commonObjects;
         BasePage basePage;
-        public BaseStepDefinitions(CommonObjects commonObjects)
+        public NavigationStepDefinitions(CommonObjects commonObjects)
         {
             basePage = new BasePage(commonObjects.Driver);
             this.commonObjects = commonObjects;

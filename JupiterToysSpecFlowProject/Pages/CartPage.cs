@@ -8,51 +8,43 @@ using System.Threading.Tasks;
 
 namespace JupiterToysSpecFlowProject.Pages
 {
-    public class CartPage
+    public class CartPage : BasePage
     {
-        private IWebDriver driver;
-        private WebDriverWait wait;
-        public CartPage(IWebDriver driver) 
-        { 
-            this.driver = driver;
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        }
+        public CartPage(IWebDriver driver) : base(driver) { }
 
-        public IWebElement ToyRowContainer(String toy)
-        {
+        public IWebElement ToyRowContainer(String toy) {
             if(ExplicitWait(driver.FindElement(By.XPath("//td[text()=' " + toy + " ']/.."))))
             {
                 return driver.FindElement(By.XPath("//td[text()=' " + toy + " ']/.."));
             }
-            return null;          
+            return null;
         }
 
-        public int GetToyQuantity(String toy)
-        {
-            return int.Parse(ToyRowContainer(toy).FindElement(By.XPath(".//input")).GetAttribute("value"));
+        public string GetToyQuantity(String toy) {
+            return ToyRowContainer(toy)
+                    .FindElement(By.XPath(".//input"))
+                    .GetAttribute("value");
         }
 
-        public decimal GetTotalPrice()
-        {
+        public string GetTotalPrice() {
             if(ExplicitWait(driver.FindElement(By.XPath("//td[contains(@class,'column-total')]/strong"))))
             {
-                return decimal.Parse(driver.FindElement(By.XPath("//td[contains(@class,'column-total')]/strong")).Text.Replace("Total ", "").Trim());
+                return driver.FindElement(By.XPath("//td[contains(@class,'column-total')]/strong"))
+                    .Text;
             }
-            return Decimal.Zero;
+            return null;
         }
 
-        public decimal GetToyPrice(String toy)
-        {
-            return decimal.Parse(ToyRowContainer(toy).FindElement(By.XPath(".//td[4]")).Text.Replace("$", "").Trim());
+        public string GetToyPrice(string toy) {
+            return ToyRowContainer(toy).FindElement(By.XPath(".//td[4]"))
+                    .Text;
         }
 
-        public void ClickCheckOutButton()
-        {
+        public void ClickCheckOutButton() {
             if(ExplicitWait(driver.FindElement(By.XPath("//a[contains(@class,'btn-checkout')]"))))
             {
                 driver.FindElement(By.XPath("//a[contains(@class,'btn-checkout')]")).Click();
             }
         }
-        public Boolean ExplicitWait(IWebElement element) => wait.Until(d => element.Displayed);
     }
 }

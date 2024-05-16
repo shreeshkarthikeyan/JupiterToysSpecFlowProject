@@ -2,6 +2,8 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using TechTalk.SpecFlow;
+using BoDi;
+using JupiterToysSpecFlowProject.Support;
 
 namespace JupiterToysSpecFlowProject.Hooks
 {
@@ -9,23 +11,30 @@ namespace JupiterToysSpecFlowProject.Hooks
     public sealed class Hooks
     {
         private CommonObjects commonObjects;
-        private IWebDriver driver;
+        public IWebDriver driver;
+        private IObjectContainer container;
+        private Config config;
 
-        public Hooks(CommonObjects commonObjects)
+        public Hooks(CommonObjects commonObjects, IObjectContainer container, Config config)
         {
             this.commonObjects = commonObjects;
+            this.container = container;
+            this.config = config;
         }
 
         [BeforeScenario]
         public void BeforeScenario()
         {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.AddArgument("--disable-notifications");
-            chromeOptions.AddArgument("--ignore-ssl-errors=yes");
-            chromeOptions.AddArgument("--ignore-certificate-errors");
-            driver = new ChromeDriver(chromeOptions);
-            driver.Manage().Window.Maximize();
+            if(config.readFromPropertiesFile("browser").Equals("chrome")) {
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.AddArgument("--disable-notifications");
+                chromeOptions.AddArgument("--ignore-ssl-errors=yes");
+                chromeOptions.AddArgument("--ignore-certificate-errors");
+                driver = new ChromeDriver(chromeOptions);
+                driver.Manage().Window.Maximize();
+            }
             commonObjects.Driver = driver;
+            container.RegisterInstanceAs(driver);
         }
 
         [AfterScenario]

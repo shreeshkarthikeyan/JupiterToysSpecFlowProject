@@ -112,7 +112,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "ToyName",
                             "Quantity"});
                 table1.AddRow(new string[] {
-                            "Joker",
+                            "KiaToys24",
                             "2"});
                 table1.AddRow(new string[] {
                             "Cute Kratos",
@@ -127,7 +127,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.And("the user validates all the items subprice and total price", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 13
- testRunner.And("the user starts checkout process", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("the user clicks Check Out button", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
                 TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                             "FieldName",

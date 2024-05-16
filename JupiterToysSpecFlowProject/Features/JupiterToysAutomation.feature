@@ -6,11 +6,11 @@ Scenario: Hub scenario Jupiter toy automation
 	And the user navigates to the shop tab
 	And the user adds following toys to the cart
 	| ToyName		| Quantity |
-	| Joker			|     2    |
+	| KiaToys24		|     2    |
 	| Cute Kratos   |     3    |
 	Then the user navigates to the cart tab
 	And the user validates all the items subprice and total price
-	And the user starts checkout process
+	And the user clicks Check Out button
 	And the user checks out using same delivery details
 	| FieldName    | FieldValue		|
 	| First Name   | Shreesh		|

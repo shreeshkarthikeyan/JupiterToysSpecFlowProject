@@ -8,43 +8,35 @@ using System.Threading.Tasks;
 
 namespace JupiterToysSpecFlowProject.Pages
 {
-    public class ShopPage
+    public class ShopPage : BasePage
     {
-        private IWebDriver driver;
-        private WebDriverWait wait;
-        public ShopPage(IWebDriver driver) 
-        {
-            this.driver = driver;
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        }
+        public ShopPage(IWebDriver driver) : base(driver) { }
 
-        public IWebElement ToyContainer(String toy)
-        {
+        public IWebElement ToyContainer(String toy) {
             if(ExplicitWait(driver.FindElement(By.XPath("//h4[text()='" + toy + "']/..")))) {
                 return driver.FindElement(By.XPath("//h4[text()='" + toy + "']/.."));
             }
             return null;
         }
 
-        public void AddToys(string toy, int quantity)
-        {
+        public void AddToys(string toy, int quantity) {
             if(ExplicitWait(ToyContainer(toy).FindElement(By.XPath(".//a[text()='Buy']"))))
             {
                 for (int i = 0; i < quantity; i++)
                 {
                     ToyContainer(toy).FindElement(By.XPath(".//a[text()='Buy']")).Click();
-                    Thread.Sleep(2000);
+                    IWebElement overlayContainer = driver.FindElement(By.XPath("//div[@class=\"cdk-overlay-container\"]"));
+                    ExplicitWait(overlayContainer.FindElement(By.XPath(".//span[contains(text(),'" + toy + " has been added to the cart')]")));
+                    Thread.Sleep(500);
                 }
             }
         }
 
-        public decimal GetToyPrice(string toy)
-        {
+        public decimal GetToyPrice(string toy) {
             return decimal.Parse(ToyContainer(toy).FindElement(By.XPath(".//span[contains(@class,'product-price')]"))
                                     .Text
                                     .Replace("$", ""));
         }
 
-        public Boolean ExplicitWait(IWebElement element) => wait.Until(d => element.Displayed);
     }
 }

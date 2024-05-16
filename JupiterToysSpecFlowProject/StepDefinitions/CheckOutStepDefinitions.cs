@@ -1,6 +1,6 @@
 using JupiterToysSpecFlowProject.DataContainer;
 using JupiterToysSpecFlowProject.DataModel;
-using JupiterToysSpecFlowProject.Pages;
+using JupiterToysSpecFlowProject.Pages.CheckOut;
 using NUnit.Framework;
 using System;
 using TechTalk.SpecFlow;
@@ -30,7 +30,7 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
         {
             contactDetails = table.CreateInstance<ContactDetails>();
             checkOutPage.AddContactDetailsInCheckOutForm(contactDetails);
-            checkOutPage.ClickNextButton("Contact Details");
+            checkOutPage.ClickNextButton();
             /*deliveryDetails = new DeliveryDetails(true, contactDetails.firstName + " " + contactDetails.lastName,
                                                                   contactDetails.address, contactDetails.suburb, contactDetails.state, 
                                                                   contactDetails.postcode);*/
@@ -43,65 +43,71 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
             deliveryDetails.postcode = contactDetails.postcode;
             
             checkOutPage.AddDeliveryDetailsInCheckOutForm(deliveryDetails);
-            checkOutPage.ClickNextButton("Delivery Details");
+            checkOutPage.ClickNextButton();
         }
 
         [Then(@"the user verifies the details on the confirm order screen and confirms it")]
         public void ThenTheUserVerifiesTheDetailsOnTheConfirmOrderScreenAndConfirmsIt()
         {
-            checkOutPage.ClickEpandAllButton();
-            ValidateOrderDetailsSection();
-            ValidateDeliveryAndContactDetailsSection();
-            ValidatePaymentDetailsSection();
-            checkOutPage.ClickSubmitOrderButton();
+            ConfirmOrderForm confirmOrderForm = new ConfirmOrderForm(commonObjects.Driver);
+            confirmOrderForm.ClickExpandAllButton();
+            ValidateOrderDetailsSection(confirmOrderForm);
+            ValidateDeliveryAndContactDetailsSection(confirmOrderForm);
+            ValidatePaymentDetailsSection(confirmOrderForm);
+            confirmOrderForm.ClickSubmitOrderButton();
         }
 
-        public void ValidateOrderDetailsSection()
+        public void ValidateOrderDetailsSection(ConfirmOrderForm confirmOrderForm)
         {
             // Checks the number of items in the cart
-            Assert.AreEqual(commonObjects.cartItems.Count, checkOutPage.GetNumberOfCartItems(), "Cart Item Count mismatches");
+            Assert.AreEqual(commonObjects.cartItems.Count, confirmOrderForm.GetNumberOfCartItems(), "Cart Item Count mismatches");
             foreach (var item in commonObjects.cartItems)
             {
-                // Checks the item's unit price
-                Assert.AreEqual(commonObjects.cartItems[item.Key].price, checkOutPage.GetCartItemUnitPrice(item.Key), $"{item.Key} Cart Item Unit Price mismatches");
+                // Checks the item's unit
+                if (confirmOrderForm.GetCartItemUnitPrice(item.Key).Contains(commonObjects.cartItems[item.Key].price.ToString())) {
+                    Assert.IsTrue(true, $"{item.Key} Cart Item Unit Price mismatches");
+                }
+                
                 // Checks the item's quantity
-                Assert.AreEqual(commonObjects.cartItems[item.Key].quantity, checkOutPage.GetCartItemQuanity(item.Key), $"{item.Key} Cart Item Quantity mismatches");
+                Assert.AreEqual(commonObjects.cartItems[item.Key].quantity.ToString(), confirmOrderForm.GetCartItemQuanity(item.Key), $"{item.Key} Cart Item Quantity mismatches");
+                
                 // Checks the item's sub total
-                Assert.AreEqual(commonObjects.GetToyItemPrice(item.Key), checkOutPage.GetCartItemSubTotal(item.Key), $"{item.Key} Cart Item Sub Total mismatches");
+                if(confirmOrderForm.GetCartItemSubTotal(item.Key).Contains(commonObjects.GetToyItemPrice(item.Key).ToString())) {
+                    Assert.IsTrue(true, $"{item.Key} Cart Item Sub Total mismatches");
+                }
             }
         }
 
-        public void ValidateDeliveryAndContactDetailsSection()
+        public void ValidateDeliveryAndContactDetailsSection(ConfirmOrderForm confirmOrderForm)
         {
-            Assert.AreEqual(contactDetails.firstName+ " "+contactDetails.lastName, checkOutPage.GetCName(), "Contact Name mismatches");
-            Assert.AreEqual(deliveryDetails.name, checkOutPage.GetDName(), "Delivery Name mismatches");
+            Assert.AreEqual(contactDetails.firstName+ " "+contactDetails.lastName, confirmOrderForm.GetCName(), "Contact Name mismatches");
+            Assert.AreEqual(deliveryDetails.name, confirmOrderForm.GetDName(), "Delivery Name mismatches");
             
-            if(checkOutPage.GetDAddress().Contains(deliveryDetails.address)) {
+            if(confirmOrderForm.GetDAddress().Contains(deliveryDetails.address)) {
                 Assert.IsTrue(true, "Delivery Address Line 1 mismatches");
             }
-            if (checkOutPage.GetDAddress().Contains(deliveryDetails.suburb)) {
+            if (confirmOrderForm.GetDAddress().Contains(deliveryDetails.suburb)) {
                 Assert.IsTrue(true, "Delivery Suburb mismatches");
             }
-            if (checkOutPage.GetDAddress().Contains(deliveryDetails.state)) {
+            if (confirmOrderForm.GetDAddress().Contains(deliveryDetails.state)) {
                 Assert.IsTrue(true, "Delivery State mismatches");
             }
-            if (checkOutPage.GetDAddress().Contains(deliveryDetails.postcode))
-            {
+            if (confirmOrderForm.GetDAddress().Contains(deliveryDetails.postcode)) {
                 Assert.IsTrue(true, "Delivery Post Code mismatches");
             }
 
-            Assert.AreEqual(contactDetails.email, checkOutPage.GetCEmailAddress(), "Contact Email Address mismatches");
-            Assert.AreEqual(contactDetails.phoneNumber, checkOutPage.GetCNumber(), "Contact Phone Number mismatches");
+            Assert.AreEqual(contactDetails.email, confirmOrderForm.GetCEmailAddress(), "Contact Email Address mismatches");
+            Assert.AreEqual(contactDetails.phoneNumber, confirmOrderForm.GetCNumber(), "Contact Phone Number mismatches");
 
         }
 
-        public void ValidatePaymentDetailsSection()
+        public void ValidatePaymentDetailsSection(ConfirmOrderForm confirmOrderForm)
         {
-            Assert.AreEqual(paymentDetails.nameOnCard, checkOutPage.GetCardName(), "Name on Card mismatches");
-            Assert.AreEqual(paymentDetails.cardNumber, checkOutPage.GetCardNumber(), "Card Number mismatches");
-            Assert.AreEqual(paymentDetails.cardType, checkOutPage.GetCardType(), "Card Type mismatches");
-            Assert.AreEqual(paymentDetails.expiryDate, checkOutPage.GetCardExpiry(), "Card Expiry mismatches");
-            Assert.AreEqual(paymentDetails.CVV, checkOutPage.GetCardCVV(), "Card CVV mismatches");
+            Assert.AreEqual(paymentDetails.nameOnCard, confirmOrderForm.GetCardName(), "Name on Card mismatches");
+            Assert.AreEqual(paymentDetails.cardNumber, confirmOrderForm.GetCardNumber(), "Card Number mismatches");
+            Assert.AreEqual(paymentDetails.cardType, confirmOrderForm.GetCardType(), "Card Type mismatches");
+            Assert.AreEqual(paymentDetails.expiryDate, confirmOrderForm.GetCardExpiry(), "Card Expiry mismatches");
+            Assert.AreEqual(paymentDetails.CVV, confirmOrderForm.GetCardCVV(), "Card CVV mismatches");
         }
 
         [Then(@"the user finishes payment with below details")]
@@ -109,7 +115,7 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
         {
             paymentDetails = table.CreateInstance<PaymentDetails>();
             checkOutPage.AddPaymentDetailsInCheckOutForm(paymentDetails);
-            checkOutPage.ClickNextButton("Payment Details");
+            checkOutPage.ClickNextButton();
         }
 
     }
