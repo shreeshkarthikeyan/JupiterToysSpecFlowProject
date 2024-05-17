@@ -1,8 +1,10 @@
 using JupiterToysSpecFlowProject.DataContainer;
+using JupiterToysSpecFlowProject.DataModel;
 using JupiterToysSpecFlowProject.Pages;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using System;
+using System.Linq;
 using TechTalk.SpecFlow;
 
 namespace JupiterToysSpecFlowProject.StepDefinitions
@@ -10,28 +12,36 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
     [Binding]
     public class CartStepDefinitions
     {
-        CommonObjects commonObjects;
         CartPage cartPage;
-
-        public CartStepDefinitions(CommonObjects commonObjects) 
-        { 
-            this.commonObjects = commonObjects;
-            cartPage = new CartPage(commonObjects.Driver);
+        private IWebDriver driver;
+        public Dictionary<string, Toy> cartItems;
+        public CartStepDefinitions(IWebDriver driver, Dictionary<string, Toy> cartItems) 
+        {
+            this.driver = driver;
+            this.cartItems = cartItems;
+            cartPage = new CartPage(driver);
         }
         [Then(@"the user validates all the items subprice and total price")]
         public void ThenTheUserValidatesAllTheItemsSubpriceAndTotalPrice()
         {
-            foreach(var item in commonObjects.cartItems)
+            foreach(var item in cartItems)
             {
+                Console.WriteLine($"{cartItems[item.Key].toyName}'s quantity --> {cartItems[item.Key].quantity}");
+                Console.WriteLine($"{cartItems[item.Key].toyName}'s price --> {cartItems[item.Key].price}");
                 //Checking toy sub price
-                if(cartPage.GetToyPrice(item.Key).Contains(commonObjects.GetToyItemPrice(item.Key).ToString())) {
-                    Assert.IsTrue(true, $"{item.Key}'s sub price mismatches - Expected value: {commonObjects.GetToyItemPrice(item.Key)}, UI value: {cartPage.GetToyPrice(item.Key)}");
+                if (cartPage.GetToyPrice(item.Key).Contains((cartItems[item.Key].quantity * cartItems[item.Key].price).ToString())) {
+                    Assert.IsTrue(true, $"{item.Key}'s sub price mismatches - Expected value: {(cartItems[item.Key].quantity * cartItems[item.Key].price).ToString()}, UI value: {cartPage.GetToyPrice(item.Key)}");
                 }
             }
 
+
             //checking total price
-            if(cartPage.GetTotalPrice().Contains(commonObjects.GetTotalPrice().ToString())) {
-                Assert.IsTrue(true, $"Expected value: {commonObjects.GetTotalPrice()}, UI value: {cartPage.GetTotalPrice()}");
+            decimal price = 0;
+            foreach (var item in cartItems) {
+                price += (item.Value.price * item.Value.quantity);
+            }
+            if (cartPage.GetTotalPrice().Contains(price.ToString())) {
+                Assert.IsTrue(true, $"Expected value: {price.ToString()}, UI value: {cartPage.GetTotalPrice()}");
             }
         }
 

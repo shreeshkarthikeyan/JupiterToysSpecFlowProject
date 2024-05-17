@@ -2,6 +2,7 @@ using JupiterToysSpecFlowProject.DataContainer;
 using JupiterToysSpecFlowProject.DataModel;
 using JupiterToysSpecFlowProject.Pages.CheckOut;
 using NUnit.Framework;
+using OpenQA.Selenium;
 using System;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Assist;
@@ -11,16 +12,18 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
     [Binding]
     public class CheckOutStepDefinitions
     {
-        CommonObjects commonObjects;
         CheckOutPage checkOutPage;
         ContactDetails contactDetails;
         DeliveryDetails deliveryDetails;
         PaymentDetails paymentDetails;
+        private IWebDriver driver;
+        public Dictionary<string, Toy> cartItems;
 
-        public CheckOutStepDefinitions(CommonObjects commonObjects) 
+        public CheckOutStepDefinitions(IWebDriver driver, Dictionary<string, Toy> cartItems) 
         {
-            this.commonObjects = commonObjects;
-            checkOutPage = new CheckOutPage(commonObjects.Driver);
+            this.driver = driver;
+            this.cartItems = cartItems;
+            checkOutPage = new CheckOutPage(driver);
             contactDetails = new ContactDetails();
             deliveryDetails = new DeliveryDetails();
             paymentDetails = new PaymentDetails();
@@ -49,7 +52,7 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
         [Then(@"the user verifies the details on the confirm order screen and confirms it")]
         public void ThenTheUserVerifiesTheDetailsOnTheConfirmOrderScreenAndConfirmsIt()
         {
-            ConfirmOrderForm confirmOrderForm = new ConfirmOrderForm(commonObjects.Driver);
+            ConfirmOrderForm confirmOrderForm = new ConfirmOrderForm(driver);
             confirmOrderForm.ClickExpandAllButton();
             ValidateOrderDetailsSection(confirmOrderForm);
             ValidateDeliveryAndContactDetailsSection(confirmOrderForm);
@@ -60,19 +63,23 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
         public void ValidateOrderDetailsSection(ConfirmOrderForm confirmOrderForm)
         {
             // Checks the number of items in the cart
-            Assert.AreEqual(commonObjects.cartItems.Count, confirmOrderForm.GetNumberOfCartItems(), "Cart Item Count mismatches");
-            foreach (var item in commonObjects.cartItems)
+            Assert.AreEqual(cartItems.Count, confirmOrderForm.GetNumberOfCartItems(), "Cart Item Count mismatches");
+            foreach (var item in cartItems)
             {
+                var subTotal = cartItems[item.Key].quantity * cartItems[item.Key].price;
+                Console.WriteLine($"{cartItems[item.Key].toyName}'s quantity --> {cartItems[item.Key].quantity}");
+                Console.WriteLine($"{cartItems[item.Key].toyName}'s price --> {cartItems[item.Key].price}");
+                Console.WriteLine($"{cartItems[item.Key].toyName}'s sub total --> {subTotal}");
                 // Checks the item's unit
-                if (confirmOrderForm.GetCartItemUnitPrice(item.Key).Contains(commonObjects.cartItems[item.Key].price.ToString())) {
+                if (confirmOrderForm.GetCartItemUnitPrice(item.Key).Contains(cartItems[item.Key].price.ToString())) {
                     Assert.IsTrue(true, $"{item.Key} Cart Item Unit Price mismatches");
                 }
                 
                 // Checks the item's quantity
-                Assert.AreEqual(commonObjects.cartItems[item.Key].quantity.ToString(), confirmOrderForm.GetCartItemQuanity(item.Key), $"{item.Key} Cart Item Quantity mismatches");
+                Assert.AreEqual(cartItems[item.Key].quantity.ToString(), confirmOrderForm.GetCartItemQuanity(item.Key), $"{item.Key} Cart Item Quantity mismatches");
                 
                 // Checks the item's sub total
-                if(confirmOrderForm.GetCartItemSubTotal(item.Key).Contains(commonObjects.GetToyItemPrice(item.Key).ToString())) {
+                if(confirmOrderForm.GetCartItemSubTotal(item.Key).Contains(subTotal.ToString())) {
                     Assert.IsTrue(true, $"{item.Key} Cart Item Sub Total mismatches");
                 }
             }

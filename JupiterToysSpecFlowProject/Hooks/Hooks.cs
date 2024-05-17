@@ -4,22 +4,23 @@ using OpenQA.Selenium.Chrome;
 using TechTalk.SpecFlow;
 using BoDi;
 using JupiterToysSpecFlowProject.Support;
+using JupiterToysSpecFlowProject.DataModel;
 
 namespace JupiterToysSpecFlowProject.Hooks
 {
     [Binding]
     public sealed class Hooks
     {
-        private CommonObjects commonObjects;
         public IWebDriver driver;
+        public Dictionary<string, Toy> cartItems;
         private IObjectContainer container;
         private Config config;
 
-        public Hooks(CommonObjects commonObjects, IObjectContainer container, Config config)
+        public Hooks(IObjectContainer container, Config config)
         {
-            this.commonObjects = commonObjects;
             this.container = container;
             this.config = config;
+            cartItems = new Dictionary<string, Toy>();
         }
 
         [BeforeScenario]
@@ -33,8 +34,8 @@ namespace JupiterToysSpecFlowProject.Hooks
                 driver = new ChromeDriver(chromeOptions);
                 driver.Manage().Window.Maximize();
             }
-            commonObjects.Driver = driver;
-            container.RegisterInstanceAs(driver);
+            container.RegisterInstanceAs<IWebDriver>(driver);
+            container.RegisterInstanceAs<Dictionary<string, Toy>>(cartItems);
         }
 
         [AfterScenario]

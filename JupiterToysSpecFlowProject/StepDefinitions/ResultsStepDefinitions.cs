@@ -1,5 +1,6 @@
 using JupiterToysSpecFlowProject.DataContainer;
 using JupiterToysSpecFlowProject.Pages;
+using OpenQA.Selenium;
 using System;
 using TechTalk.SpecFlow;
 
@@ -8,13 +9,12 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
     [Binding]
     public class ResultsStepDefinitions
     {
-        CommonObjects commonObjects;
         ResultsPage resultsPage;
-
-        public ResultsStepDefinitions(CommonObjects commonObjects)
+        private IWebDriver driver;
+        public ResultsStepDefinitions(IWebDriver driver)
         {
-            this.commonObjects = commonObjects;
-            resultsPage = new ResultsPage(commonObjects.Driver);
+            this.driver = driver;
+            resultsPage = new ResultsPage(driver);
         }
 
         [Then(@"the user finally obtains the order number and payment status")]

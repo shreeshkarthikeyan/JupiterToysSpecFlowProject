@@ -10,30 +10,27 @@ namespace JupiterToysSpecFlowProject.DataContainer
 {
     public class CommonObjects
     {
-        private IWebDriver driver;
-
-        public IWebDriver Driver { get => driver; set => driver = value; }
-        public Dictionary<string, Toy> cartItems { get; }
+        public Dictionary<string, Toy> cartItems1 { get; }
 
         public CommonObjects()
         {
-            cartItems = new Dictionary<string, Toy>();
+            cartItems1 = new Dictionary<string, Toy>();
         }
 
         public void AddCartItems(Toy toy)
         {
-            cartItems.Add(toy.toyName, toy);
+            cartItems1.Add(toy.toyName, toy);
         }
 
         public decimal GetToyItemPrice(String toy)
         {
-            return cartItems[toy].quantity * cartItems[toy].price;
+            return cartItems1[toy].quantity * cartItems1[toy].price;
         }
 
         public decimal GetTotalPrice()
         {
             decimal price = 0;
-            foreach(var item in cartItems)
+            foreach(var item in cartItems1)
             {
                 price += (item.Value.price * item.Value.quantity);
             }

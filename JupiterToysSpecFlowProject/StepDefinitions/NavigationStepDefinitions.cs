@@ -1,6 +1,7 @@
 using JupiterToysSpecFlowProject.DataContainer;
 using JupiterToysSpecFlowProject.DataModel;
 using JupiterToysSpecFlowProject.Pages;
+using OpenQA.Selenium;
 using TechTalk.SpecFlow.Assist;
 
 namespace JupiterToysSpecFlowProject.StepDefinitions
@@ -8,12 +9,12 @@ namespace JupiterToysSpecFlowProject.StepDefinitions
     [Binding]
     public class NavigationStepDefinitions
     {
-        CommonObjects commonObjects;
         BasePage basePage;
-        public NavigationStepDefinitions(CommonObjects commonObjects)
+        private IWebDriver driver;
+        public NavigationStepDefinitions(IWebDriver driver)
         {
-            basePage = new BasePage(commonObjects.Driver);
-            this.commonObjects = commonObjects;
+            this.driver = driver;
+            basePage = new BasePage(driver);
         }
 
         [Given(@"the user opens the jupiter toys application")]
